@@ -58,13 +58,28 @@ body {
   margin: 0 auto;
 }
 
+#printableArea {
+  display: none;
+}
+
 @media print {
+  #printableArea {
+    display: block;
+  }
+
   header {
-    display: none;
+    .button.first, .button.second, .button.third, .button.fourth {
+      display: none;
+    }
+    .radar-title__text {
+      padding-left: 0 !important;
+    }
   }
 
   svg#radar-plot {
+    left: 0 !important;
     top: 0 !important;
+    margin-left: -0.4in !important;
   }
 
   div.quadrant-table {
@@ -136,7 +151,7 @@ svg#radar-plot {
   margin: 0 auto;
   transition: all 1s ease;
   position: relative;
-  left: 18.5%;
+  left: 20.5%;
   top: 15px;
 
   path {

@@ -7,7 +7,7 @@ const RingCalculator = require('../util/ringCalculator');
 
 const Radar = function (size, radar) {
   var svg, radarElement, blipWidth = 22;
-  var leftAlign = '18.5%';
+  var leftAlign = '20.5%';
 
   var tip = d3tip().attr('class', 'd3-tip').html(function (text) {
     return text;
@@ -318,6 +318,16 @@ const Radar = function (size, radar) {
     _.each([0, 3, 2, 1], function (i) {
       addButton(quadrants[i]);
     });
+
+
+    header.append('div')
+      .html('<button>Print this page</button>')
+      .on('click', printDiv);
+  }
+
+
+  function printDiv() {
+    window.print();
   }
 
   function plotRadarFooter() {
@@ -412,6 +422,8 @@ const Radar = function (size, radar) {
       plotTexts(quadrantGroup, cycles, quadrant);
       plotBlips(quadrantGroup, cycles, quadrant);
     });
+
+    plotPrintableText(radar.printableText());
 
     plotRadarFooter();
   };

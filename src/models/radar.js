@@ -53,6 +53,10 @@ const Radar = function() {
     return quadrants;
   };
 
+  self.printableText = function() {
+    return '';
+  };
+
   return self;
 };
 
