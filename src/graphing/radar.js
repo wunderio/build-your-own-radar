@@ -278,10 +278,45 @@ const Radar = function (size, radar) {
       .html('<img src="/images/radar_legend.png" />');
   }
 
+  var drawKey = function (header, quadrantRadius, tx, ty, colour) {
+    //var x = quadrantRadius / 10;
+    //var y = quadrantRadius / 10;
+    var triangleKey = "New or moved";
+    var circleKey = "No change";
+    //if (!tx) {
+    //  x = (quadrantRadius - x) - (Math.max(triangleKey.length, circleKey.length) * 10);
+    //}
+    //if (!ty) {
+    //  y = quadrantRadius - y;
+    //}
+    var container = header.append('svg').append('g');
+    //var container = d3.select('svg').append('svg').append('g');
+
+    var x=100;
+    var y=100;
+    triangle(x, y - 10, 'first', container)
+      .attr('fill', colour);
+    container
+      .append('text')
+        .attr('x', x + 10)
+        .attr('y', y - 5)
+        .attr('fill', colour)
+        .attr('font-size', '0.8em')
+        .text(triangleKey);
+
+
+     //circle(x, y + 10, 'first', header)
+     //  .attr('fill', colour);
+     //header
+     //  .append('text')
+     //     .attr({'x': x + 10, 'y': y + 15, 'fill': colour, 'font-size': '0.8em'})
+     //    .text(circleKey);
+  };
+
   function redrawFullRadar() {
     removeHomeLink();
-    removeRadarLegend();
-    plotRadarLegend(d3.select('header'), 'first');
+    // removeRadarLegend();
+    // plotRadarLegend(d3.select('header'), 'first');
 
     svg.style('left', leftAlign)
       .style('top', '15px');
@@ -368,7 +403,7 @@ const Radar = function (size, radar) {
   function selectQuadrant(order, startAngle) {
     d3.selectAll('.home-link').classed('selected', false);
     createHomeLink(d3.select('header'));
-    plotRadarLegend(d3.select('header'), order);
+    // plotRadarLegend(d3.select('header'), order);
 
     d3.selectAll('.button').classed('selected', false).classed('full-view', false);
     d3.selectAll('.button.' + order).classed('selected', true);
@@ -423,6 +458,8 @@ const Radar = function (size, radar) {
       .duration(1000)
       .style('pointer-events', 'none')
       .attr('transform', 'translate(' + translateXAll + ',' + translateYAll + ')scale(0)');
+
+    drawKey(d3.select('header'), 200, 0, 1, '#000');
   }
 
   self.init = function () {
@@ -438,7 +475,7 @@ const Radar = function (size, radar) {
     var header = plotRadarHeader();
 
     plotQuadrantButtons(quadrants, header);
-    plotRadarLegend(header, 'first');
+    // plotRadarLegend(header, 'first');
 
     svg = radarElement.append("svg").call(tip);
     svg.attr('id', 'radar-plot').attr('width', size).attr('height', size + 14);
