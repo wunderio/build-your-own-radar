@@ -258,7 +258,7 @@ const Radar = function (size, radar) {
     });
   }
 
-  function removeHomeLink() {
+  function removeHomeLink(){
     d3.select('.home-link').remove();
   }
 
@@ -276,7 +276,7 @@ const Radar = function (size, radar) {
     }
   }
 
-  function removeRadarLegend() {
+  function removeRadarLegend(){
     d3.select('.legend').remove();
   }
 
@@ -316,7 +316,9 @@ const Radar = function (size, radar) {
       y = 4 * size / 5;
     }
 
-
+    d3.select('.legend')
+       .transition()
+       .style('visibility', 'visible');
 
     triangleLegend(x, y, 'black', container)
       .attr('fill', colour);
@@ -430,7 +432,6 @@ const Radar = function (size, radar) {
   function selectQuadrant(order, startAngle) {
     d3.selectAll('.home-link').classed('selected', false);
     createHomeLink(d3.select('header'));
-    // plotRadarLegend(d3.select('header'), order);
 
     d3.selectAll('.button').classed('selected', false).classed('full-view', false);
     d3.selectAll('.button.' + order).classed('selected', true);

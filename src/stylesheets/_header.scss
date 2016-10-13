@@ -4,21 +4,6 @@ header {
   text-align: center;
   margin-bottom: 15px;
 
-  .legend {
-
-    &.legend-first, &.legend-fourth {
-      text-align: left;
-    }
-    &.legend-second, &.legend-third {
-      text-align: right;
-    }
-
-    display: inline-block;
-    height: 45px;
-    width: 80%;
-
-  }
-
   .radar-title {
     background-color: $grey-light;
     padding-top: 30px;
@@ -122,5 +107,4 @@ header {
       }
     }
   }
-
 }
