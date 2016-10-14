@@ -460,7 +460,7 @@ const Radar = function (size, radar) {
       .style('pointer-events', 'none')
       .attr('transform', 'translate(' + translateXAll + ',' + translateYAll + ')scale(0)');
 
-    drawLegend(d3.select('header'), Math.max(moveLeft, moveRight), order);
+    drawLegend(d3.select('header'), order);
   }
 
   self.init = function () {
