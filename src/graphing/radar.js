@@ -280,13 +280,13 @@ const Radar = function (size, radar) {
     d3.select('.legend').remove();
   }
 
-  function drawLegend(header, order) {
+  function drawLegend(order) {
     removeRadarLegend();
 
     var triangleKey = "New or moved";
     var circleKey = "No change";
 
-    var container = header.append('svg')
+    var container = d3.select('svg').append('g')
       .attr('class', 'legend legend'+"-"+order)
       .attr('width', '200px')
       .attr('height', '100%');
@@ -295,9 +295,28 @@ const Radar = function (size, radar) {
     var y = 10;
     var colour = '#000';
 
-    if(order == "second" || order == "third") {
-      x = 0.7 * window.innerWidth;
+
+    if(order == "first") {
+      x = 4 * size / 5;
+      y = 1 * size / 5;
     }
+
+    if(order == "second") {
+      x = 1 * size / 5;
+      y = 1 * size / 5;
+    }
+
+    if(order == "third") {
+      x = 1 * size / 5;
+      y = 4 * size / 5;
+    }
+
+    if(order == "fourth") {
+      x = 4 * size / 5;
+      y = 4 * size / 5;
+    }
+
+
 
     triangleLegend(x, y, 'black', container)
       .attr('fill', colour);
@@ -326,7 +345,6 @@ const Radar = function (size, radar) {
   function redrawFullRadar() {
     removeHomeLink();
     removeRadarLegend();
-    drawLegend(d3.select('header'), 'first');
 
     svg.style('left', 0).style('right', 0);
 
@@ -460,7 +478,7 @@ const Radar = function (size, radar) {
       .style('pointer-events', 'none')
       .attr('transform', 'translate(' + translateXAll + ',' + translateYAll + ')scale(0)');
 
-    drawLegend(d3.select('header'), order);
+    drawLegend(order);
   }
 
   self.init = function () {
@@ -476,7 +494,6 @@ const Radar = function (size, radar) {
     var header = plotRadarHeader();
 
     plotQuadrantButtons(quadrants, header);
-    drawLegend(d3.select('header'), 'first');
 
     radarElement.style('height', size + 14 + 'px');
     svg = radarElement.append("svg").call(tip);
