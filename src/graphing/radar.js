@@ -246,7 +246,7 @@ const Radar = function (size, radar) {
     });
   }
 
-  function removeHomeLink(){
+  function removeHomeLink() {
     d3.select('.home-link').remove();
   }
 
@@ -264,11 +264,11 @@ const Radar = function (size, radar) {
     }
   }
 
-  function removeRadarLegend(){
+  function removeRadarLegend() {
     d3.select('.legend').remove();
   }
 
-  function plotRadarLegend(pageElement, order){
+  function plotRadarLegend(pageElement, order) {
     removeRadarLegend();
 
     pageElement
@@ -278,39 +278,60 @@ const Radar = function (size, radar) {
       .html('<img src="/images/radar_legend.png" />');
   }
 
-  var drawKey = function (header, quadrantRadius, tx, ty, colour) {
-    //var x = quadrantRadius / 10;
-    //var y = quadrantRadius / 10;
+  var drawKey = function (header, moveConst, colour, order) {
+
+    d3.selectAll('.legend').remove();
+
     var triangleKey = "New or moved";
     var circleKey = "No change";
-    //if (!tx) {
-    //  x = (quadrantRadius - x) - (Math.max(triangleKey.length, circleKey.length) * 10);
-    //}
-    //if (!ty) {
-    //  y = quadrantRadius - y;
-    //}
-    var container = header.append('svg').append('g');
-    //var container = d3.select('svg').append('svg').append('g');
 
-    var x=100;
-    var y=100;
-    triangle(x, y - 10, 'first', container)
+    console.log(moveConst);
+
+    var container = d3.select('svg').append('g').attr('class', 'legend');
+
+    var x = 404;
+    var y = 0;
+
+    if (order == 'first') {
+      x += 1 * moveConst / 10;
+      y += 1 * moveConst / 10;
+    }
+    else if (order == "second") {
+      x += 1 * moveConst / 10;
+      y += 1 * moveConst / 10;
+    }
+    else if (order == "third") {
+      x += 1 * moveConst / 5;
+      y += 3 * moveConst / 5;
+    }
+    else if (order == "fourth") {
+      x += 2 * moveConst / 5;
+      y += 4 * moveConst / 5;
+    }
+
+
+    triangle(x, y, 'black', container)
       .attr('fill', colour);
+
     container
       .append('text')
-        .attr('x', x + 10)
-        .attr('y', y - 5)
-        .attr('fill', colour)
-        .attr('font-size', '0.8em')
-        .text(triangleKey);
+      .attr('x', x + 10)
+      .attr('y', y + 5)
+      .attr('fill', colour)
+      .attr('font-size', '0.8em')
+      .text(triangleKey);
 
 
-     //circle(x, y + 10, 'first', header)
-     //  .attr('fill', colour);
-     //header
-     //  .append('text')
-     //     .attr({'x': x + 10, 'y': y + 15, 'fill': colour, 'font-size': '0.8em'})
-     //    .text(circleKey);
+    circle(x, y + 30, 'black', container)
+      .attr('fill', colour);
+
+    container
+      .append('text')
+      .attr('x', x + 10)
+      .attr('y', y + 35)
+      .attr('fill', colour)
+      .attr('font-size', '0.8em')
+      .text(circleKey);
   };
 
   function redrawFullRadar() {
@@ -338,24 +359,24 @@ const Radar = function (size, radar) {
       .attr('transform', 'scale(1)');
 
     d3.selectAll('.quadrant-group')
-         .style('pointer-events', 'auto');
+      .style('pointer-events', 'auto');
   }
 
   function plotRadarHeader() {
     var header = d3.select('body').insert('header', "#radar");
     header.append('div')
       .attr('class', 'radar-title')
-        .append('div')
-        .attr('class', 'radar-title__text')
-        .append('h1')
-        .text(document.title)
-        .style('cursor', 'pointer')
-        .on('click', redrawFullRadar);
+      .append('div')
+      .attr('class', 'radar-title__text')
+      .append('h1')
+      .text(document.title)
+      .style('cursor', 'pointer')
+      .on('click', redrawFullRadar);
 
     header.select('.radar-title')
-          .append('div')
-          .attr('class', 'radar-title__logo')
-          .html('<a href="https://www.thoughtworks.com"> <img src="/images/logo.png" /> </a>');
+      .append('div')
+      .attr('class', 'radar-title__logo')
+      .html('<a href="https://www.thoughtworks.com"> <img src="/images/logo.png" /> </a>');
 
     return header;
   }
@@ -408,7 +429,7 @@ const Radar = function (size, radar) {
     d3.selectAll('.button.' + order).classed('selected', true);
     d3.selectAll('.quadrant-table').classed('selected', false);
     d3.selectAll('.quadrant-table.' + order).classed('selected', true);
-    d3.selectAll('.blip-item-description').classed('expanded',false);
+    d3.selectAll('.blip-item-description').classed('expanded', false);
 
     var scale = 2;
 
@@ -450,7 +471,13 @@ const Radar = function (size, radar) {
       .style('pointer-events', 'none')
       .attr('transform', 'translate(' + translateXAll + ',' + translateYAll + ')scale(0)');
 
-    drawKey(d3.select('header'), 200, 0, 1, '#000');
+
+    // console.log("move left =" + moveLeft);
+    // console.log("move right =" + moveRight);
+    // console.log("translateX =" + translateX);
+    // console.log("translateY =" + translateY);
+    // drawKey(d3.select('header'), Math.abs(translateX)/2, translateX, translateY, '#000', order);
+    drawKey(d3.select('header'), Math.max(moveLeft, moveRight), '#000', order);
   }
 
   self.init = function () {
