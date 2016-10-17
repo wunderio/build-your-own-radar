@@ -1,42 +1,69 @@
 .input-sheet {
-  width: 50%;
-  margin: 100px auto;
 
-  label, p {
+  margin: 60px auto;
+
+  p {
     font-weight: 100;
-    color: $grey-text;
-    font-size: 16px;
+    color: $black;
+    font-size: 18px;
 
-    &.small {
-      font-size: inherit;
+  }
+
+  .input-sheet__logo {
+    text-align: center;
+    padding-bottom: 40px;
+    a {
+      border-bottom: none;
+
+      img {
+        width: 200px;
+      }
     }
   }
-  
-  input[type="text"] {
-    display: block;
-    margin: 0;
+
+  .radar-footer {
+    padding-top: 200px;
+  }
+
+  .input-sheet__banner {
+    background-image: url('/images/tech-radar-201611-landing-page-wide.png');
+    background-repeat: no-repeat;
+    background-color: $grey-light;
+    background-size: cover;
+    background-position: center;
     width: 100%;
+    margin: 0 auto;
+    text-align: center;
+    min-height: 240px;
+    padding-top: 45px;
+  }
+
+  .input-sheet__form {
+    width: 50%;
+    margin: 0 auto;
+    text-align: center;
+    padding-top: 30px;
+
+    button {
+      border: none;
+      background-color: transparent;
+      margin: 0;
+      padding: 0;
+    }
+  }
+
+  input[type="text"] {
+    border-bottom: 2px solid $grey-even-darker;
+    display: block;
     font-size: 18px;
-    appearance: none;
-    box-shadow: none;
-    border-radius: none;
-    
+    margin-bottom: 30px;
     padding: 10px;
-    border: solid 1px $grey-dark;
     transition: box-shadow 0.3s, border 0.3s;
 
     &:focus, &.focus {
       outline: none;
-      border: solid 1px $grey;
-      box-shadow: 0 0 5px 1px $grey-dark;
+      border-bottom: 2px solid $grey-even-darker;
+      box-shadow: none;
     }
   }
-}
-
-.loading {
-  text-align: center;
-  font-weight: 100;
-  font-size: 20px;
-  color: $grey-text;
-  margin: 100px auto;
 }

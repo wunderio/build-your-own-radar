@@ -1,25 +1,25 @@
 'use strict';
 
-var webpack = require('webpack');
-var path = require('path');
-var buildPath = path.join(__dirname, './dist');
-var args = require('yargs').argv;
+const webpack = require('webpack');
+const path = require('path');
+const buildPath = path.join(__dirname, './dist');
+const args = require('yargs').argv;
 
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
-var HtmlWebpackPlugin = require('html-webpack-plugin');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-var isProd = args.prod;
-var isDev = args.dev;
+let isProd = args.prod;
+let isDev = args.dev;
 
-var entry = ['./src/site.js'];
-var devtool;
+let entry = ['./src/site.js'];
+let devtool;
 
 if (isDev) {
     entry.push('webpack-dev-server/client?http://0.0.0.0:8080');
     devtool = 'source-map';
 }
 
-var plugins = [
+let plugins = [
     new ExtractTextPlugin('[name].[hash].css'),
     new HtmlWebpackPlugin({
         template: './src/index.html',
@@ -56,7 +56,7 @@ module.exports = {
             { test: /\.json$/, loader: 'json'},
             { test: /\.js$/, exclude: /node_modules/, loader: 'babel'},
             { test: /\.scss$/, exclude: /node_modules/, loader: ExtractTextPlugin.extract('style', 'css?sourceMap!sass') },
-            { test: /\.png$/, exclude: /node_modules/, loader: 'file-loader?name=images/[name].[ext]' }
+            { test: /\.(png|jpg|ico)$/, exclude: /node_modules/, loader: 'file-loader?name=images/[name].[ext]&context=./src/images' }
         ]
     },
 

@@ -10,9 +10,13 @@ const _ = {
 const InputSanitizer = require('./inputSanitizer');
 const Radar = require('../models/radar');
 const Quadrant = require('../models/quadrant');
-const Cycle = require('../models/cycle');
+const Ring = require('../models/ring');
 const Blip = require('../models/blip');
 const GraphingRadar = require('../graphing/radar');
+const MalformedDataError = require('../exceptions/malformedDataError');
+const ContentValidator = require('./contentValidator');
+const ExceptionMessages = require('./exceptionMessages');
+
 
 const GoogleSheet = function (sheetId, sheetName) {
   var self = {};
@@ -25,44 +29,90 @@ const GoogleSheet = function (sheetId, sheetName) {
 
     function createRadar(sheets, tabletop) {
 
-      if(!sheetName) {
-        sheetName = Object.keys(sheets)[0];
-      }
+      try {
 
-      var blips = _.map(tabletop.sheets(sheetName).all(), new InputSanitizer().sanitize);
-
-      document.title = tabletop.googleSheetName;
-      d3.selectAll(".loading").remove();
-
-      var cycles = _.map(_.uniqBy(blips, 'cycle'), 'cycle');
-      var cycleMap = {};
-      _.each(cycles, function (cycleName, i) {
-        cycleMap[cycleName] = new Cycle(cycleName, i);
-      });
-
-      var quadrants = {};
-      _.each(blips, function (blip) {
-        if (!quadrants[blip.quadrant]) {
-          quadrants[blip.quadrant] = new Quadrant(_.capitalize(blip.quadrant));
+        if (!sheetName) {
+          sheetName = Object.keys(sheets)[0];
         }
-        quadrants[blip.quadrant].add(new Blip(blip.Name, cycleMap[blip.cycle], blip.isNew.toLowerCase() === 'true', blip.topic, blip.description))
-      });
+        var columnNames = tabletop.sheets(sheetName).column_names;
 
-      var radar = new Radar();
-      _.each(quadrants, function (quadrant) {
-        radar.addQuadrant(quadrant)
-      });
+        var contentValidator = new ContentValidator(columnNames);
+        contentValidator.verifyContent();
+        contentValidator.verifyHeaders();
 
-      var size = (window.innerHeight - 133) < 620 ? 620 : window.innerHeight - 133;
-      new GraphingRadar(size, radar).init().plot();
+        var all = tabletop.sheets(sheetName).all();
+        var blips = _.map(all, new InputSanitizer().sanitize);
+
+        document.title = tabletop.googleSheetName;
+        d3.selectAll(".loading").remove();
+
+        var rings = _.map(_.uniqBy(blips, 'ring'), 'ring');
+        var ringMap = {};
+        var maxRings = 4;
+
+        _.each(rings, function (ringName, i) {
+          if(i == maxRings){
+            throw new MalformedDataError(ExceptionMessages.TOO_MANY_RINGS);
+          }
+          ringMap[ringName] = new Ring(ringName, i);
+        });
+
+        var quadrants = {};
+        _.each(blips, function (blip) {
+          if (!quadrants[blip.quadrant]) {
+            quadrants[blip.quadrant] = new Quadrant(_.capitalize(blip.quadrant));
+          }
+          quadrants[blip.quadrant].add(new Blip(blip.name, ringMap[blip.ring], blip.isNew.toLowerCase() === 'true', blip.topic, blip.description))
+        });
+
+        var radar = new Radar();
+        _.each(quadrants, function (quadrant) {
+          radar.addQuadrant(quadrant)
+        });
+
+        var size = (window.innerHeight - 133) < 620 ? 620 : window.innerHeight - 133;
+
+        new GraphingRadar(size, radar).init().plot();
+
+      } catch (exception) {
+
+        d3.selectAll(".loading").remove();
+        var message = 'Oops! It seems like there are some problems with loading your data. ';
+
+        if (exception instanceof MalformedDataError) {
+          message = message.concat(exception.message);
+        } else {
+          console.error(exception);
+        }
+
+        message = message.concat('<br/>', 'Please check <a href="">FAQs</a> for possible solutions.');
+
+        d3.select('body')
+          .append('div')
+          .attr('class', 'error-container')
+          .append('div')
+          .attr('class', 'error-container__message')
+          .append('p')
+          .html(message);
+      }
     }
   };
 
   self.init = function () {
-    d3.select('body')
+    var content = d3.select('body')
       .append('div')
       .attr('class', 'loading')
-      .text('Loading your data...');
+      .append('div')
+      .attr('class', 'input-sheet');
+
+    set_document_title();
+
+    plotLogo(content);
+
+    var bannerText = '<h1>Building your radar...</h1><p>Your Technology Radar will be available in just a few seconds</p>';
+    plotBanner(content, bannerText);
+    plotFooter(content);
+
 
     return self;
   };
@@ -70,18 +120,20 @@ const GoogleSheet = function (sheetId, sheetName) {
   return self;
 };
 
- var QueryParams = function(queryString) {
-   var decode = function (s) { return decodeURIComponent(s.replace(/\+/g, " ")); };
+var QueryParams = function (queryString) {
+  var decode = function (s) {
+    return decodeURIComponent(s.replace(/\+/g, " "));
+  };
 
-   var search = /([^&=]+)=?([^&]*)/g;
+  var search = /([^&=]+)=?([^&]*)/g;
 
-   var queryParams = {};
-   var match;
-   while (match = search.exec(queryString))
-     queryParams[decode(match[1])] = decode(match[2]);
+  var queryParams = {};
+  var match;
+  while (match = search.exec(queryString))
+    queryParams[decode(match[1])] = decode(match[2]);
 
-   return queryParams
- };
+  return queryParams
+};
 
 const GoogleSheetInput = function () {
   var self = {};
@@ -93,25 +145,76 @@ const GoogleSheetInput = function () {
       return GoogleSheet(queryParams.sheetId, queryParams.sheetName).init().build();
     } else {
       var content = d3.select('body')
-          .append('div')
-          .attr('class', 'input-sheet');
-      content.append('p')
-          .html('Automatically generate an interactive radar, inspired by <a href="http://thoughtworks.com/radar/">thoughtworks.com/radar/</a>. The radar data is provided by your public google sheet, and must conform to <a href="https://github.com/thenano/tech-radar#setting-up-your-data">this format</a>.')
+        .append('div')
+        .attr('class', 'input-sheet');
 
-      var form = content.append('form')
-          .attr('method', 'get');
+      set_document_title();
 
-      form.append('label').text('Please provide the id of your public google sheet:');
+      plotLogo(content);
 
-      form.append('input')
-          .attr('type', 'text')
-          .attr('name', 'sheetId');
+      var bannerText = '<h1>Build your own radar</h1><p>Once you\'ve <a href ="">created your Radar</a>, you can use this service' +
+        ' to generate an <br />interactive version of your Technology Radar. Not sure how? <a href ="">Read this first.</a></p>';
 
-      form.append('p').attr('class', 'small').html("Don't know what to do here? Have a look at the <a href='https://github.com/thenano/tech-radar'>documentation</a>");
+      plotBanner(content, bannerText);
+
+      plotForm(content);
+
+      plotFooter(content);
+
     }
   };
 
   return self;
 };
+
+function set_document_title() {
+  document.title = "Build your own Radar";
+}
+
+function plotLogo(content) {
+  content.append('div')
+    .attr('class', 'input-sheet__logo')
+    .html('<a href="https://www.thoughtworks.com"><img src="/images/tw-logo.png" / ></a>');
+}
+
+function plotFooter(content) {
+  content
+    .append('div')
+    .attr('id', 'footer')
+    .append('p')
+    .classed('radar-footer', true)
+    .html('Powered by <a href="https://www.thoughtworks.com"> ThoughtWorks</a>. Open source, github link and credit references go here');
+}
+
+function plotBanner(content, text) {
+  content.append('div')
+    .attr('class', 'input-sheet__banner')
+    .html(text);
+
+}
+
+function plotForm(content) {
+  content.append('div')
+    .attr('class', 'input-sheet__form')
+    .append('p')
+    .html('<strong>Enter the URL of your public google sheet below...</strong>');
+
+  var form = content.select('.input-sheet__form').append('form')
+    .attr('method', 'get');
+
+  form.append('input')
+    .attr('type', 'text')
+    .attr('name', 'sheetId')
+    .attr('placeholder', 'e.g. https://docs.google.com/spreadsheets/d/1--_uLSNf/pubhtml');
+
+  form.append('button')
+    .attr('type', 'submit')
+    .append('a')
+    .attr('class', 'button')
+    .text('Build my radar');
+
+  form.append('p').html("<a href=''>Need help?</a>");
+}
+
 
 module.exports = GoogleSheetInput;
