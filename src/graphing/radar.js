@@ -488,6 +488,10 @@ const Radar = function (size, radar) {
     }
   }
 
+  function plotPrintableText(text){
+
+  }
+
   self.init = function () {
     radarElement = d3.select('body').append('div').attr('id', 'radar');
     return self;
