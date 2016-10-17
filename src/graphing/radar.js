@@ -317,6 +317,7 @@ const Radar = function (size, radar) {
     }
 
     d3.select('.legend')
+       .attr('class', 'legend legend-'+order)
        .transition()
        .style('visibility', 'visible');
 
@@ -479,7 +480,11 @@ const Radar = function (size, radar) {
       .style('pointer-events', 'none')
       .attr('transform', 'translate(' + translateXAll + ',' + translateYAll + ')scale(0)');
 
-    drawLegend(order);
+
+
+    if (d3.select('.legend.legend-' + order).empty()){
+      drawLegend(order);
+    }
   }
 
   self.init = function () {
