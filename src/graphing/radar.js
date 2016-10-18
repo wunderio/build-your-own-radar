@@ -160,6 +160,11 @@ const Radar = function (size, radar) {
     startAngle = quadrantWrapper.startAngle;
     order = quadrantWrapper.order;
 
+    d3.select('.quadrant-table.' + order)
+      .append('h2')
+      .attr('class', 'quadrant-table__name')
+      .text(quadrant.name());
+
     blips = quadrant.blips();
     rings.forEach(function (ring, i) {
       var maxRadius, minRadius;
@@ -404,7 +409,8 @@ const Radar = function (size, radar) {
 
 
     header.append('div')
-      .html('<button>Print this page</button>')
+      .classed('print-radar button', true)
+      .text('Print this page')
       .on('click', printDiv);
   }
 
