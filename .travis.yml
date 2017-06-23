@@ -1,6 +1,6 @@
 language: node_js
 node_js:
-- 'node'
+- '7'
 env:
   - CLOUDFRONT_DISTRIBUTION_ID: EJ8WZKA0CXU9V
 jobs:
