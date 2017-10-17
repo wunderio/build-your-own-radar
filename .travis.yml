@@ -11,7 +11,7 @@ env:
 jobs:
   include:
     - stage: Deploy Prod
-      script: npm run examples
+      script: npm run build
       deploy:
         provider: s3
         access_key_id: $AWS_ACCESS_KEY_ID
