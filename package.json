@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "istanbul cover jasmine",
+    "test": "standard && istanbul cover jasmine",
+    "test:lint": "npx standard",
     "dev": "webpack-dev-server --mode development --inline",
     "build": "webpack --mode production"
   },
@@ -33,6 +34,7 @@
     "postcss-loader": "^3.0.0",
     "postcss-preset-env": "^6.5.0",
     "sass-loader": "^7.1.0",
+    "standard": "^12.0.1",
     "style-loader": "^0.23.1",
     "webpack": "^4.28.0",
     "webpack-cli": "^3.1.2",
@@ -47,5 +49,17 @@
     "lodash": "^4.16.2",
     "sanitize-html": "^1.13.0",
     "tabletop": "^1.4.3"
+  },
+  "standard": {
+    "globals": [
+      "XMLHttpRequest"
+    ],
+    "env": [
+      "jasmine"
+    ],
+    "ignore": [
+      "radar-spec.js",
+      "ref-table-spec.js"
+    ]
   }
 }
