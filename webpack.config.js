@@ -13,10 +13,8 @@ const cssnano = require('cssnano')
 let isProd = args.prod
 let isDev = args.dev
 let env = args.envFile
-if (env) {
-  // Load env file
-  require('dotenv').config({ path: env })
-}
+// Load env file
+require('dotenv').config({ path: __dirname + '/.env' })
 
 let main = ['./src/site.js']
 let common = ['./src/common.js']
@@ -38,11 +36,13 @@ let plugins = [
     template: './src/error.html',
     chunks: ['common'],
     inject: 'body',
-    filename: 'error.html'
+    filename: '404.html'
   }),
   new webpack.DefinePlugin({
     'process.env.CLIENT_ID': JSON.stringify(process.env.CLIENT_ID),
-    'process.env.API_KEY': JSON.stringify(process.env.API_KEY)
+    'process.env.API_KEY': JSON.stringify(process.env.API_KEY),
+    'process.env.SHEET_ID': JSON.stringify(process.env.SHEET_ID),
+    'process.env.SHEET_NAME': JSON.stringify(process.env.SHEET_NAME)
   })
 ]
 
