@@ -1,56 +1,75 @@
+# Javascript Node CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-javascript/ for more details
+#
 version: 2.1
+jobs:
+  build:
+    parameters:
+      deploy:
+        description: "Whether to deploy code?"
+        type: boolean
+        default: false
 
-setup: true
-
-orbs:
-  continuation: circleci/continuation@0.2.0
-
-executors:
-  base:
     docker:
       - image: cimg/node:16.15.0
         user: root
 
-commands:
-  install-node-packages:
-    description: Install node packages
     steps:
+      - checkout
+
       - restore_cache:
-          key: node-cache-v2-{{ checksum "package-lock.json" }}
-      - run:
-          name: Install node packages
-          command: |
-            npm install --save-dev --unsafe-perm node-sass
-            npm install
+          keys:
+            - v1-npm-{{ checksum "package-lock.json" }}
+            - v1-npm-
+
+
+      - run: npm install --dev
+
       - save_cache:
           paths:
-            - ./node_modules
-          key: node-cache-v2-{{ checksum "package-lock.json" }}
+            - node_modules
+          key: v1-npm-{{ checksum "package-lock.json" }}
 
-jobs:
-  tests:
-    executor: base
-    steps:
-      - checkout
-      - install-node-packages
+      #- run:
+      #    name: ESLint check and fixing if possible
+      #    command: |
+      #      node node_modules/eslint/bin/eslint.js . --fix
+
       - run:
-          name: Run linter and unit tests with coverage
-          command: npm run quality
-  check-for-pr:
-    executor: base
-    steps:
-      - checkout
-      - run: |
-          if [[ $CIRCLE_PULL_REQUEST ]]; then
-            circleci-agent step halt
-          fi
-      - continuation/continue:
-          configuration_path: .circleci/deployment-workflow.yml
+          name: Remove dev dependencies
+          command: |
+             npm install --production
+
+      - run:
+          name: Remove source maps
+          command: find . | grep -e ".*\.map$" | xargs rm
+
+      - when:
+          condition: << parameters.deploy >>
+          steps:
+            - run:
+                name: Build
+                command: npm run build
+            - run:
+                name: Deploy to Firebase
+                command: ./node_modules/.bin/firebase deploy --token $FIREBASE_TOKEN
 
 workflows:
-  main:
+  version: 2
+  commit:
     jobs:
-      - tests
-      - check-for-pr:
-          requires:
-            - tests
+      - build:
+          name: build-only
+          filters:
+            branches:
+              ignore: 
+                - master
+
+      - build:
+          name: build-deploy
+          deploy: true
+          filters:
+            branches:
+              only: 
+                - master
