@@ -19,3 +19,4 @@ cypress/
 .private.notes
 
 .talismanrc
+.firebase/
