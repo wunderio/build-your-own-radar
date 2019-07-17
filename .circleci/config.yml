@@ -1,0 +1,74 @@
+# Javascript Node CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-javascript/ for more details
+#
+version: 2.1
+jobs:
+  build:
+    parameters:
+      deploy:
+        description: "Whether to deploy code?"
+        type: boolean
+        default: false
+
+    docker:
+      - image: circleci/node:10
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - v1-npm-{{ checksum "package-lock.json" }}
+            - v1-npm-
+
+
+      - run: npm install --dev
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-npm-{{ checksum "package-lock.json" }}
+
+      #- run:
+      #    name: ESLint check and fixing if possible
+      #    command: |
+      #      node node_modules/eslint/bin/eslint.js . --fix
+
+      - run:
+          name: Remove dev dependencies
+          command: |
+             npm install --production
+
+      - run:
+          name: Remove source maps
+          command: find . | grep -e ".*\.map$" | xargs rm
+
+      - when:
+          condition: << parameters.deploy >>
+          steps:
+            - run:
+                name: Build
+                command: npm run build
+            - run:
+                name: Deploy to Firebase
+                command: ./node_modules/.bin/firebase deploy --token $FIREBASE_TOKEN
+
+workflows:
+  version: 2
+  commit:
+    jobs:
+      - build:
+          name: build-only
+          filters:
+            branches:
+              ignore: 
+                - master
+
+      - build:
+          name: build-deploy
+          deploy: true
+          filters:
+            branches:
+              only: 
+                - master
