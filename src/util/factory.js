@@ -225,40 +225,8 @@ const GoogleSheetInput = function () {
   var sheet
 
   self.build = function () {
-    var domainName = DomainName(window.location.search.substring(1))
-    var queryString = window.location.href.match(/sheetId(.*)/)
-    var queryParams = queryString ? QueryParams(queryString[0]) : {}
-
-    if (queryParams.sheetId && queryParams.sheetId.endsWith('.csv')) {
-      sheet = CSVDocument(queryParams.sheetId)
-      sheet.init().build()
-    } else if (queryParams.sheetId && queryParams.sheetId.endsWith('.json')) {
-      sheet = JSONFile(queryParams.sheetId)
-      sheet.init().build()
-    } else if (domainName && domainName.endsWith('google.com') && queryParams.sheetId) {
-      sheet = GoogleSheet(queryParams.sheetId, queryParams.sheetName)
-      console.log(queryParams.sheetName)
-
-      sheet.init().build()
-    } else {
-      if (!config.featureToggles.UIRefresh2022) {
-        document.body.style.opacity = '1'
-        document.body.innerHTML = ''
-        const content = d3.select('body').append('div').attr('class', 'input-sheet')
-        plotLogo(content)
-        const bannerText =
-          '<div><h1>Build your own radar</h1><p>Once you\'ve <a href ="https://www.thoughtworks.com/radar/byor">created your Radar</a>, you can use this service' +
-          ' to generate an <br />interactive version of your Technology Radar. Not sure how? <a href ="https://www.thoughtworks.com/radar/how-to-byor">Read this first.</a></p></div>'
-
-        plotBanner(content, bannerText)
-
-        plotForm(content)
-
-        plotFooter(content)
-      }
-
-      setDocumentTitle()
-    }
+    sheet = GoogleSheet(process.env.SHEET_ID, process.env.SHEET_NAME)
+    sheet.init().build()
   }
 
   return self
