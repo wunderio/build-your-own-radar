@@ -24,7 +24,10 @@ jobs:
             - v1-npm-
 
 
-      - run: npm install --dev
+      - run: 
+          command: |
+            npm install --save-dev --unsafe-perm node-sass
+            npm install
 
       - save_cache:
           paths:
@@ -36,10 +39,10 @@ jobs:
       #    command: |
       #      node node_modules/eslint/bin/eslint.js . --fix
 
-      - run:
-          name: Remove dev dependencies
-          command: |
-             npm install --production
+      #- run:
+          #name: Remove dev dependencies
+          #command: |
+             #npm install --production
 
       - run:
           name: Remove source maps
