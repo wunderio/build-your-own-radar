@@ -64,7 +64,7 @@ workflows:
           filters:
             branches:
               ignore: 
-                - master
+                - main
 
       - build:
           name: build-deploy
@@ -72,4 +72,4 @@ workflows:
           filters:
             branches:
               only: 
-                - master
+                - main
